@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 
 # Read input image
 image = cv2.imread('2.jpg')
-image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-#
+#Input File
 plt.figure(figsize=(10,10))
 plt.imshow(image)
 plt.title("The input file")
