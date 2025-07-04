@@ -78,6 +78,6 @@ plt.show()
 
 
 # Save the result
-save_path = "cartoon_output.jpg"
+save_path = "cartoonined_output.jpg"
 cv2.imwrite(save_path, cv2.cvtColor(cartoon, cv2.COLOR_RGB2BGR))
 print(f"Cartoon image saved as '{save_path}'")
