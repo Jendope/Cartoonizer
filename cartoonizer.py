@@ -5,7 +5,7 @@ from sklearn.cluster import KMeans
 from tkinter import Tk, filedialog
 
 # Let user choose a file
-Tk().withdraw()  # Hide the root tkinter window
+Tk().withdraw()
 file_path = filedialog.askopenfilename(
     title="Select an image",
     filetypes=[("Image files", "*.jpg *.jpeg *.png *.bmp")]
@@ -75,7 +75,6 @@ plt.title("Cartoonized")
 plt.axis("off")
 plt.imshow(cartoon)
 plt.show()
-
 
 # Save the result
 save_path = "cartoonined_output.jpg"
