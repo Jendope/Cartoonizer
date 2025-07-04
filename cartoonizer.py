@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
 from tkinter import Tk, filedialog
 
 # Let user choose a file
@@ -21,41 +22,60 @@ plt.title("The Input File")
 plt.axis('off')
 plt.show()
 
-# Convert to grayscale and blur
+# Edge detection
 gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-gray = cv2.medianBlur(gray, 5)
+gray = cv2.medianBlur(gray, 9)
 
-plt.figure(figsize=(10, 10))
-plt.imshow(gray, cmap="gray")
-plt.title("Grayscale Image")
-plt.axis('off')
-plt.show()
-
-# Detect edges
-edge = cv2.adaptiveThreshold(
-    gray, 255,
-    cv2.ADAPTIVE_THRESH_MEAN_C,
-    cv2.THRESH_BINARY,
-    9, 9
+# Combine adaptive threshold with Canny edges
+edges_adaptive = cv2.adaptiveThreshold(
+    gray_blur, 255,
+    cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+    cv2.THRESH_BINARY_INV,
+    11, 2
 )
 
-plt.figure(figsize=(10, 10))
-plt.imshow(edge, cmap="gray")
-plt.title("Edges")
-plt.axis('off')
+edges_canny = cv2.Canny(gray_blur, 30, 100)
+edges = cv2.bitwise_or(edges_adaptive, edges_canny)
+
+#Fix broken edges
+kernel = np.ones((2, 2), np.uint8)
+edges = cv2.dilate(edges, kernel, iterations=1)
+edges = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, kernel)
+
+plt.axis("off")
+plt.imshow(edges, cmap='gray')
 plt.show()
 
-# Smoothen the color image
-color = cv2.bilateralFilter(image, 9, 250, 250)
+# Flatter color region
+k = 6
+data = image.reshape(-1,3)
+kmeans = KMeans(n_clusters=k, random_state=42).fit(data)
+image_reduced = kmeans.cluster_centers_[kmeans.labels_]
+image_reduced = image_reduced.reshape(image.shape).astype(np.uint8)
 
-# Combine edges and color
-cartoon = cv2.bitwise_and(color, color, mask=edge)
+# Smoothing with edge preservation
+blurred = cv2.bilateralFilter(image_reduced, d=15, sigmaColor=80, sigmaSpace=80)
 
-plt.figure(figsize=(10, 10))
+# Cartoon Styling
+cartoon = blurred.copy()
+cartoon[edges != 0] = [0, 0, 0]
+
+# Texture
+for i in range(0, cartoon.shape[0], 8):
+    cv2.line(cartoon, (0, i), (cartoon.shape[1], i), (200,200,200), 1, cv2.LINE_AA)
+
+#Display the comparison
+plt.subplot(1, 2, 1)
+plt.title("Original")
+plt.axis("off")
+plt.imshow(image)
+
+plt.subplot(1, 2, 2)
+plt.title("Cartoonized")
+plt.axis("off")
 plt.imshow(cartoon)
-plt.title("Cartoon Image")
-plt.axis('off')
 plt.show()
+
 
 # Save the result
 save_path = "cartoon_output.jpg"
