@@ -28,13 +28,13 @@ gray = cv2.medianBlur(gray, 9)
 
 # Combine adaptive threshold with Canny edges
 edges_adaptive = cv2.adaptiveThreshold(
-    gray_blur, 255,
+    gray, 255,
     cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
     cv2.THRESH_BINARY_INV,
     11, 2
 )
 
-edges_canny = cv2.Canny(gray_blur, 30, 100)
+edges_canny = cv2.Canny(gray, 30, 100)
 edges = cv2.bitwise_or(edges_adaptive, edges_canny)
 
 #Fix broken edges
